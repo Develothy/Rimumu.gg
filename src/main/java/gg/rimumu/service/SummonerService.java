@@ -190,7 +190,7 @@ public class SummonerService {
     // match 당 정보 //  { info : {xx} } 부분
     public JsonObject getMatchIdInfo(String matchId) throws RimumuException.MatchNotFoundException {
 
-        String matchDataUrl = RimumuKey.SUMMONER_MATCHES_URL + matchId.replace("\"", "");
+        String matchDataUrl = RimumuKey.SUMMONER_MATCHDTL_URL + matchId.replace("\"", "");
 
         HttpResponse<String> MatchInfoResponse = HttpConnUtil.sendHttpGetRequest(matchDataUrl);
 
@@ -231,12 +231,24 @@ public class SummonerService {
         JsonObject runes = inGame.getAsJsonObject("perks");
         JsonArray styles = runes.getAsJsonArray("styles");
 
+        String rune1 = ((JsonObject) styles.get(0)).get("style").getAsString();;
+        String rune2;
+        String runeImgUrl1;
+        String runeImgUrl2;
+
         // 메인 룬
-        JsonObject selec1 = (JsonObject) styles.get(0);
-        String runeImgUrl1 = RimumuKey.DD_URL + "img/" + getRuneImgUrl(selec1.get("style").getAsString());
-        // 보조 룬
-        JsonObject selec2 = (JsonObject) styles.get(1);
-        String runeImgUrl2 = RimumuKey.DD_URL + "img/" + getRuneImgUrl(selec2.get("style").getAsString());
+        if (!"0".equals(rune1)) {
+            runeImgUrl1 = RimumuKey.DD_URL + "img/" + getRuneImgUrl(rune1);
+            // 보조 룬
+            rune2 = ((JsonObject) styles.get(1)).get("style").getAsString();
+            runeImgUrl2 = RimumuKey.DD_URL + "img/" + getRuneImgUrl(rune2);
+        } else {
+            rune1 = null;
+            rune2 = null;
+            runeImgUrl1 = null;
+            runeImgUrl2 = null;
+        }
+
         rune.put("rune1", runeImgUrl1);
         rune.put("rune2", runeImgUrl2);
 
@@ -362,13 +374,17 @@ public class SummonerService {
                 participant.setChampImgUrl(RimumuKey.DD_URL + VersionUtil.DD_VERSION + "/img/champion/" + champ + ".png");
 
                 // 해당 parti의 id가 검색된 id인지 비교
-                if (!summoner.getName().equals(participant.getInName())) {
+/*                if (!summoner.getName().equals(participant.getInName())) {
                     // participant가 나일 경우 추가 정보 세팅
                     setGameDetail(summoner, match, inGame, participant);
-                } else {
+                } else {*/
+                if (summoner.getName().equals(participant.getInName())) {
                     MyGame myGame = new MyGame();
                     // participant가 나일 경우 추가 정보 세팅
                     setGameDetail(summoner, match, inGame, myGame);
+                    myGame.setInChamp(champ);
+                    myGame.setChampImgUrl(participant.getChampImgUrl());
+                    match.setMyGame(myGame);
                 }
 
                 participants.add(participant);
@@ -383,9 +399,6 @@ public class SummonerService {
     }
 
     private void setGameDetail(Summoner summoner, Match match, JsonObject inGame, GameDetail gameDetail) {
-
-        gameDetail.setInChamp(gameDetail.getInChamp());
-        gameDetail.setChampImgUrl(RimumuKey.DD_URL + VersionUtil.DD_VERSION + "/img/champion/" + gameDetail.getInChamp() + ".png");
 
         // KDA
         int kill = inGame.get("kills").getAsInt();
