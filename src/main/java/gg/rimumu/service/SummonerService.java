@@ -37,6 +37,7 @@ public class SummonerService {
         HttpResponse<String> smnSearchResponse = HttpConnUtil.sendHttpGetRequest(url);
         String accResultStr;
 
+        // code null 처리 체크
         switch (smnSearchResponse.statusCode()) {
             case 200 -> accResultStr = smnSearchResponse.body();
             case 404 -> throw new RimumuException.SummonerNotFoundException(smn);
