@@ -35,8 +35,8 @@ public class HttpConnUtil {
 
             return client.send(req, HttpResponse.BodyHandlers.ofString());
 
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            new RimumuException (e.getMessage());
+        } catch (Exception e) {
+            new RimumuException.RequestException (e.getMessage());
         }
         return null;
     }

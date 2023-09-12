@@ -1,6 +1,11 @@
 package gg.rimumu.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public sealed class RimumuException extends Exception {
+
+    private static final Logger logger = LoggerFactory.getLogger(RimumuException.class);
 
     public RimumuException(String message) {
         super(message);
@@ -12,8 +17,15 @@ public sealed class RimumuException extends Exception {
      */
 
     public static final class ServerException extends RimumuException {
-        public ServerException() {
+        public ServerException(String msg) {
             super(ErrorMsg.ServerException.getMsg());
+            logger.info("error : {}", msg);
+        }
+    }
+    public static final class RequestException extends RimumuException {
+        public RequestException(String msg) {
+            super(ErrorMsg.RequestException.getMsg());
+            logger.info("error : {}", msg);
         }
     }
 

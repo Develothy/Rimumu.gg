@@ -41,7 +41,7 @@ public class SummonerService {
         switch (smnSearchResponse.statusCode()) {
             case 200 -> accResultStr = smnSearchResponse.body();
             case 404 -> throw new RimumuException.SummonerNotFoundException(smn);
-            default -> throw new RimumuException.ServerException();
+            default -> throw new RimumuException.RequestException(SummonerService.class.getName());
         }
 
         // 검색 소환사 account 정보 가져오기
